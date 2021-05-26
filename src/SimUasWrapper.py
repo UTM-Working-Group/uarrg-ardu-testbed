@@ -86,7 +86,7 @@ class SimUasWrapper:
         else:
             raise Exception()
         # self.command = Command('sleep 4; ls -l')
-        self.command = Command('sim_vehicle.py -v ArduCopter --console --out=127.0.0.1:%s' % self.port)
+        self.command = Command('sim_vehicle.py -v ArduCopter -L IITB --console --map --out=127.0.0.1:%s' % self.port)
         self.command.run(
             timeout=None, 
             stderr=subprocess.STDOUT, 

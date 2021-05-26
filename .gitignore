@@ -1,1 +1,9 @@
 *.pyc
+run
+eeprom.bin
+.vagrant
+mav.parm
+mav.tlog
+mav.tlog.raw
+terrain
+logs
