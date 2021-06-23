@@ -1,0 +1,115 @@
+---
+- hosts: all
+  become: True
+  tasks:
+    - name: Disable Apt auto update
+      lineinfile:
+        path: /etc/apt/apt.conf.d/20auto-upgrades
+        line: APT::Periodic::Update-Package-Lists "0";
+        regexp: '.*Update-Package-Lists.*'
+        create: yes
+      when:
+        - vagrant is defined
+
+    - name: Disable Apt unattended upgrades
+      lineinfile:
+        path: /etc/apt/apt.conf.d/20auto-upgrades
+        line: APT::Periodic::Unattended-Upgrade "0";
+        regexp: '.*Unattended-Upgrade.*'
+        create: yes
+      when:
+        - vagrant is defined
+
+    - name: Configure Keyboard
+      copy: 
+        src: etc-default-keyboard
+        dest: /etc/default/keyboard
+
+    - name: Install prerequisites pt 2
+      apt:
+        pkg:
+        - git
+        - byobu
+        - python-pymongo
+        - python3-pymongo
+        - python-pip
+        - python-virtualenv
+        - python3-pip
+        - python3-virtualenv
+          # - default-jdk
+          # - byobu
+          #         - python-virtualenv
+          #         - python-dev 
+          #         - nginx
+          #         - software-properties-common
+          #         - libmariadb-client-lgpl-dev
+          #         - certbot
+          #         - python-certbot-nginx
+          #         - nodejs
+        state: present
+        update_cache: no
+
+    - name: Create required directories
+      file:
+        path: "{{item.d}}"
+        state: directory
+        mode: "{{item.m}}"
+      with_items:
+        - {d: '/opt/gcc-arm-cc', m: '0755'}
+
+    - name: Install GCC ARM Cross Compiler
+      unarchive:
+        src: https://firmware.ardupilot.org/Tools/STM32-tools/gcc-arm-none-eabi-6-2017-q2-update-linux.tar.bz2
+        dest: /opt/gcc-arm-cc
+        remote_src: yes
+        creates: /opt/gcc-arm-cc/gcc-arm-none-eabi-6-2017-q2-update/bin/arm-none-eabi-g++
+ 
+    - name: Add GCC ARM CC to PATH
+      lineinfile:
+        path: /etc/profile
+        line: export PATH=$PATH:/opt/gcc-arm-cc/gcc-arm-none-eabi-6-2017-q2-update/bin/
+        regexp: 'gcc-arm'
+        create: yes
+
+    - name: Clone Ardupilot
+      git:
+        repo: https://github.com/ArduPilot/ardupilot.git
+        dest: /home/vagrant/development/ardupilot
+        version: Copter-4.0.1
+      when:
+        - ardupilot is defined
+      become: yes
+      become_user: vagrant
+
+    - name: Install Ardupilot prerequisites
+      command:
+        cmd: /home/vagrant/development/ardupilot/Tools/environment_install/install-prereqs-ubuntu.sh -y
+      when:
+        - ardupilot is defined
+      become: yes
+      become_user: vagrant
+
+    - name: Development > Configure ArduCopter
+      shell:
+        cmd: ./waf configure --board CubeBlack
+        chdir: /home/vagrant/development/ardupilot/
+      become: yes
+      become_user: vagrant
+      environment:
+        PATH: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/gcc-arm-cc/gcc-arm-none-eabi-6-2017-q2-update/bin/'
+     
+    - name: Development > Build ArduCopter
+      shell:
+        cmd: ./waf copter
+        chdir: /home/vagrant/development/ardupilot/
+      become: yes
+      become_user: vagrant
+      environment:
+        PATH: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/opt/gcc-arm-cc/gcc-arm-none-eabi-6-2017-q2-update/bin/'
+
+    - name: Add ardupilot SITL location
+      lineinfile:
+        path: /home/vagrant/development/ardupilot/Tools/autotest/locations.txt
+        line: IITB=19.134449,72.910879,0,0
+        regexp: '.*IITB.*'
+        create: yes

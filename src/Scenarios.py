@@ -3,6 +3,9 @@ from Uas import Uas
 
 def main():
     # Static flight Plans
+    # 0 - 25 m/s
+    # 0 - 359
+    # MTOW - 0kg - 300kg
     scenario = Scenario("0", "High Wind", [
        Uas(0, None),
        ])

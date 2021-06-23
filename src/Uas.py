@@ -61,10 +61,18 @@ class Uas:
         """
         pass
 
+    def set_mtow(self):
+        """
+        Sets Max Take-off Weight of a UAS.
+        """
+        pass
+
     def set_wind_speed(self, sp):
         """
         param set SIM_WIND_DIR 180
         param set SIM_WIND_SPD 18
+        1. Set fixed per experiment
+        2. Vary by stochastic model
         """
         pass
 
@@ -76,16 +84,15 @@ class Uas:
 
     def rc_fail(self):
         """
+        This simulates the complete loss of RC input. 
         param set SIM_RC_FAIL 1
         """
         pass
 
     def rc_fail_2(self):
         """
-        This simulates the complete loss of RC input. If you just want to simulate low throttle (below throttle failsafe level) then you can do that with the RC command:
-
+        If you just want to simulate low throttle (below throttle failsafe level) then you can do that with the RC command:
         rc 3 900
-
         """
         pass
 
