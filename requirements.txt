@@ -1,0 +1,12 @@
+folium
+joblib
+jsmin
+jupyter
+lmoments3
+matplotlib
+papermill
+rpy2
+seaborn
+sklearn
+statsmodels
+windrose

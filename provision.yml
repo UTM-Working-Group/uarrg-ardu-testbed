@@ -36,6 +36,8 @@
         - python-virtualenv
         - python3-pip
         - python3-virtualenv
+        - r-base 
+        - r-base-dev 
           # - default-jdk
           # - byobu
           #         - python-virtualenv
@@ -76,6 +78,7 @@
         repo: https://github.com/ArduPilot/ardupilot.git
         dest: /home/vagrant/development/ardupilot
         version: Copter-4.0.1
+        force: yes
       when:
         - ardupilot is defined
       become: yes
@@ -113,3 +116,9 @@
         line: IITB=19.134449,72.910879,0,0
         regexp: '.*IITB.*'
         create: yes
+
+    - name: Install requirements
+      pip: 
+        requirements: /vagrant/requirements.txt
+        virtualenv: /home/vagrant/.venvs/testbed
+        virtualenv_python: python3
